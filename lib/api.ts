@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3000";
+const API_URL = "http://localhost:3001";
 
 function getToken() {
   if (typeof window === "undefined") return null;
@@ -72,5 +72,79 @@ export async function login(email: string, password: string) {
   if (!res.ok) {
     throw new Error("Giriş başarısız");
   }
+  return res.json();
+}
+
+export async function getArticles() {
+  const res = await fetch(`${API_URL}/articles`, {
+    cache: "no-store",
+    headers: authHeaders(),
+  });
+
+  return res.json();
+}
+
+export async function getArticle(id: string) {
+  const res = await fetch(`${API_URL}/articles/${id}`, {
+    cache: "no-store",
+    headers: authHeaders(),
+  });
+
+  return res.json();
+}
+
+export async function createArticle(data: any) {
+  const res = await fetch(`${API_URL}/articles`, {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify(data),
+  });
+
+  return res.json();
+}
+
+export async function updateArticle(id: string, data: any) {
+  const res = await fetch(`${API_URL}/articles/${id}`, {
+    method: "PATCH",
+    headers: authHeaders(),
+    body: JSON.stringify(data),
+  });
+
+  return res.json();
+}
+
+export async function deleteArticle(id: string) {
+  const res = await fetch(`${API_URL}/articles/${id}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
+
+  return res.json();
+}
+
+export async function uploadProductImage(file: File) {
+  const token = getToken();
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch(`${API_URL}/products/upload-image`, {
+    method: "POST",
+    headers: token
+      ? {
+          Authorization: `Bearer ${token}`,
+        }
+      : undefined,
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+
+    throw new Error(
+      data?.message || "Görsel yüklenemedi."
+    );
+  }
+
   return res.json();
 }

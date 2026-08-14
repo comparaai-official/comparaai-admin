@@ -1,77 +1,94 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { getProducts, deleteProduct } from "@/lib/api";
 
 export default function Home() {
   const router = useRouter();
-  const [products, setProducts] = useState<any[]>([]);
-
-  async function loadProducts() {
-    const data = await getProducts();
-    setProducts(data);
-  }
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+
     if (!token) {
       router.push("/login");
-      return;
     }
-    loadProducts();
-  }, []);
+  }, [router]);
 
-  async function handleDelete(id: string) {
-    if (!confirm("Bu ürünü silmek istediğinize emin misiniz?")) return;
-    await deleteProduct(id);
-    loadProducts();
+  function logout() {
+    localStorage.removeItem("token");
+    router.push("/login");
   }
 
   return (
-    <main className="p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">ComparaAI Admin - Ürünler</h1>
-        <div className="flex gap-2">
-          <Link href="/categories/new" className="bg-gray-700 text-white px-4 py-2 rounded">
-            + Yeni Kategori
+    <main className="min-h-screen bg-[#050810] text-white p-8">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex justify-between items-center mb-10">
+          <div>
+            <h1 className="text-3xl font-bold">
+              Compara<span className="text-blue-400">AI</span> Admin
+            </h1>
+
+            <p className="text-slate-400 mt-2">
+              Yönetim paneline hoş geldiniz.
+            </p>
+          </div>
+
+          <button
+            onClick={logout}
+            className="border border-red-500/40 text-red-400 px-4 py-2 rounded-lg hover:bg-red-500/10"
+          >
+            Çıkış Yap
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <Link
+            href="/products"
+            className="bg-slate-900 border border-blue-500/20 rounded-xl p-6 hover:border-blue-400 transition"
+          >
+            <div className="text-3xl mb-4">📦</div>
+
+            <h2 className="text-xl font-semibold">
+              Ürünler
+            </h2>
+
+            <p className="text-slate-400 text-sm mt-2">
+              Ürünleri görüntüle, ekle, düzenle ve sil.
+            </p>
           </Link>
-          <Link href="/products/new" className="bg-black text-white px-4 py-2 rounded">
-            + Yeni Ürün
+
+          <Link
+            href="/categories/new"
+            className="bg-slate-900 border border-blue-500/20 rounded-xl p-6 hover:border-blue-400 transition"
+          >
+            <div className="text-3xl mb-4">📁</div>
+
+            <h2 className="text-xl font-semibold">
+              Kategoriler
+            </h2>
+
+            <p className="text-slate-400 text-sm mt-2">
+              Yeni kategori oluştur.
+            </p>
+          </Link>
+
+          <Link
+            href="/articles"
+            className="bg-slate-900 border border-blue-500/20 rounded-xl p-6 hover:border-blue-400 transition"
+          >
+            <div className="text-3xl mb-4">📰</div>
+
+            <h2 className="text-xl font-semibold">
+              Haberler
+            </h2>
+
+            <p className="text-slate-400 text-sm mt-2">
+              Haber oluştur, düzenle ve yayınla.
+            </p>
           </Link>
         </div>
       </div>
-
-      <table className="w-full border-collapse">
-        <thead>
-          <tr className="border-b text-left">
-            <th className="p-2">Ad</th>
-            <th className="p-2">Marka</th>
-            <th className="p-2">Kategori</th>
-            <th className="p-2">Fiyat</th>
-            <th className="p-2">İşlemler</th>
-          </tr>
-        </thead>
-        <tbody>
-          {products.map((p: any) => (
-            <tr key={p.id} className="border-b">
-              <td className="p-2">{p.name}</td>
-              <td className="p-2">{p.brand}</td>
-              <td className="p-2">{p.category?.name}</td>
-              <td className="p-2">{p.price} ₺</td>
-              <td className="p-2 flex gap-2">
-                <Link href={`/products/${p.id}/edit`} className="text-blue-600 underline">
-                  Düzenle
-                </Link>
-                <button onClick={() => handleDelete(p.id)} className="text-red-600 underline">
-                  Sil
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
     </main>
   );
 }
